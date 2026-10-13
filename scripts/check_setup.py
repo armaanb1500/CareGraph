@@ -6,6 +6,9 @@ Run from the project root:
 
 import sys
 
+from google import genai
+from google.genai import errors, types
+
 from caregraph.config import PROJECT_ROOT, get_settings
 
 
@@ -44,9 +47,10 @@ def main() -> int:
     ok(f"Gemini API key found (ends in ...{settings.gemini_api_key[-4:]})")
 
     # 4. Can we reach Gemini with that key?
-    from google import genai
-
-    client = genai.Client(api_key=settings.gemini_api_key)
+    client = genai.Client(
+        api_key=settings.gemini_api_key,
+        http_options=types.HttpOptions(retry_options=types.HttpRetryOptions(attempts=1)),
+    )
     try:
         models = [
             m.name.removeprefix("models/")
@@ -58,16 +62,30 @@ def main() -> int:
         return 1
     ok(f"Connected to Gemini ({len(models)} text models available)")
 
-    # 5. Is the model named in .env one of them?
-    if settings.gemini_model not in models:
-        fail(f"Model '{settings.gemini_model}' is not available to your key")
-        flash = [m for m in models if "flash" in m]
-        print("         Try one of these in GEMINI_MODEL: " + ", ".join(flash[:6]))
+    # 5. Do the configured models actually answer? Being listed isn't enough:
+    #    retired models can stay in the list but refuse new users.
+    names = [settings.gemini_model, *settings.gemini_fallback_models]
+    answered = [name for name in names if model_responds(client, name, models)]
+    if not answered:
         return 1
-    ok(f"Model '{settings.gemini_model}' is available")
 
-    print("\nAll good - you're ready for Stage 1.")
+    print("\nAll good - CareGraph can reach the LLM.")
     return 0
+
+
+def model_responds(client: genai.Client, name: str, available: list[str]) -> bool:
+    try:
+        client.models.generate_content(model=name, contents="Reply with OK")
+    except errors.APIError as e:
+        if e.code in (429, 503):
+            print(f"  [busy] Model '{name}' exists but is overloaded or rate-limited right now")
+        else:
+            fail(f"Model '{name}' didn't respond: {e.message}")
+            flash = [m for m in available if m.startswith("gemini-") and m.endswith("flash")]
+            print("         Models you could try: " + ", ".join(flash[-4:]))
+        return False
+    ok(f"Model '{name}' responded")
+    return True
 
 
 if __name__ == "__main__":

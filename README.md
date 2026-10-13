@@ -32,8 +32,8 @@ docs/             learning log and design notes
 
 | Stage | Build | Status |
 |---|---|---|
-| 0 | Project setup | in progress |
-| 1 | First LLM call on a synthetic discharge summary | |
+| 0 | Project setup | done |
+| 1 | First LLM call on a synthetic discharge summary | done |
 | 2 | Structured extraction (meds, diagnoses, allergies, labs) | |
 | 3 | Database for patients, documents, facts | |
 | 4 | FastAPI backend | |

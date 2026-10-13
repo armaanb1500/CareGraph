@@ -22,6 +22,7 @@ class Settings:
     llm_provider: str
     gemini_api_key: str
     gemini_model: str
+    gemini_fallback_models: list[str]
 
     @property
     def has_gemini_key(self) -> bool:
@@ -32,5 +33,8 @@ def get_settings() -> Settings:
     return Settings(
         llm_provider=os.getenv("LLM_PROVIDER", "gemini"),
         gemini_api_key=os.getenv("GEMINI_API_KEY", ""),
-        gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+        gemini_model=os.getenv("GEMINI_MODEL", "gemini-3.8-flash"),
+        gemini_fallback_models=[
+            name.strip() for name in os.getenv("GEMINI_FALLBACK_MODELS", "").split(",") if name.strip()
+        ],
     )
