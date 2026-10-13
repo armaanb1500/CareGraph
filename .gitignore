@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Secrets - never commit these
+.env
+
+# Real patient data (e.g. your own records) must never reach GitHub
+data/private/
+
+# Local databases
+*.db
+*.sqlite3
+
+# macOS
+.DS_Store
