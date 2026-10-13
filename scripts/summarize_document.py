@@ -9,6 +9,7 @@ from pathlib import Path
 
 from google.genai import errors
 
+from caregraph.llm import LLMUnavailableError
 from caregraph.summarize import summarize_document
 
 
@@ -24,9 +25,15 @@ def main() -> int:
 
     try:
         result = summarize_document(path.read_text())
+    except LLMUnavailableError as e:
+        print(e)
+        return 1
     except errors.APIError as e:
         print(f"Gemini error {e.code}: {e.message}")
         return 1
+    except KeyboardInterrupt:
+        print("\nCancelled.")
+        return 130  # the conventional exit code for "stopped with Ctrl+C"
 
     print(result.text)
     print(

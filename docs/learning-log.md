@@ -83,6 +83,12 @@ Free-tier models are often overloaded (HTTP 503) or rate-limited (HTTP 429).
 - **Exponential backoff**: wait 2s, then 4s, then longer, so we don't hammer a struggling server.
 - **Fallback models**: if the preferred model stays busy, try the next one in `GEMINI_FALLBACK_MODELS`.
 - **Don't retry real errors**: a bad key (401) or bad request (400) will fail every time.
+- **Timeouts**: a congested server can hang for 90 seconds before failing. Any call over a
+  network needs a timeout (we use 40s), or your program can wait forever. A slow model is
+  skipped straight away rather than retried.
+- **Visible progress**: "(asking gemini-3.8-flash...)" means a slow call never looks like a freeze.
+- **Custom exceptions**: `LLMUnavailableError` lets the script show one clear message instead
+  of a 60-line traceback.
 
 ### Model versions
 Google retired `gemini-2.5-flash` for new users while it still appeared in the model list.
