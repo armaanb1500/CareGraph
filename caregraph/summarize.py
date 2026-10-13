@@ -11,6 +11,7 @@ Rules:
 - If something is missing or unclear, write "not stated in the document".
 - Copy drug names, doses, dates and lab values exactly as written.
 - Write for a busy clinician: short, scannable, no filler.
+- Plain text only: no LaTeX or math notation.
 
 Use these sections:
 1. Overview (one line)
