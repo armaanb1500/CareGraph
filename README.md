@@ -17,13 +17,28 @@ cp .env.example .env        # then paste your Gemini API key into .env
 .venv/bin/python -m scripts.check_setup
 ```
 
+## Try it
+
+```bash
+.venv/bin/python -m scripts.ingest data/synthetic/patient_001
+.venv/bin/python -m scripts.show_patient SYN-000123
+```
+
 ## Project layout
 
 ```
 caregraph/        the application code (a Python package)
   config.py       loads settings from .env
-scripts/          one-off tools you run by hand
+  llm.py          talks to Gemini (retries, fallback models)
+  extract.py      structured extraction + evidence verification
+  schema.sql      database tables
+  db.py           saving to the database
+  ingest.py       document -> extraction -> patient record
+  record.py       reading a patient's record over time
+scripts/          tools you run by hand
+tests/            automated tests (.venv/bin/python -m pytest)
 data/synthetic/   fake patient documents for development
+data/caregraph.db the database (git-ignored; delete it to rebuild from documents)
 data/private/     real data (e.g. your own records) - git-ignored, local model only
 docs/             learning log and design notes
 ```
@@ -34,8 +49,8 @@ docs/             learning log and design notes
 |---|---|---|
 | 0 | Project setup | done |
 | 1 | First LLM call on a synthetic discharge summary | done |
-| 2 | Structured extraction (meds, diagnoses, allergies, labs) | |
-| 3 | Database for patients, documents, facts | |
+| 2 | Structured extraction (meds, diagnoses, allergies, labs) | done |
+| 3 | Database for patients, documents, facts | done |
 | 4 | FastAPI backend | |
 | 5 | OCR for scans and images | |
 | 6 | RAG with citations | |

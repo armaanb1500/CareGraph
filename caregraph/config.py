@@ -23,6 +23,7 @@ class Settings:
     gemini_api_key: str
     gemini_model: str
     gemini_fallback_models: list[str]
+    database_path: Path
 
     @property
     def has_gemini_key(self) -> bool:
@@ -37,4 +38,5 @@ def get_settings() -> Settings:
         gemini_fallback_models=[
             name.strip() for name in os.getenv("GEMINI_FALLBACK_MODELS", "").split(",") if name.strip()
         ],
+        database_path=Path(os.getenv("DATABASE_PATH", PROJECT_ROOT / "data" / "caregraph.db")),
     )

@@ -1,0 +1,22 @@
+*** SYNTHETIC RECORD - FICTIONAL PATIENT - FOR DEVELOPMENT ONLY ***
+
+NORTHGATE SYNTHETIC PATHOLOGY LABORATORY
+
+LABORATORY REPORT
+Patient:      Rohan Mehta           MRN: SYN-000123
+DOB:          1968-07-14            Sex: Male
+Requested by: Riverside Synthetic Medical Centre - Diabetes Clinic
+Collected:    2026-04-10 08:15 (fasting)
+Reported:     2026-04-13
+
+Test                 Result     Units      Reference
+HbA1c                7.6        %          <5.7
+Fasting glucose      132        mg/dL      70-100
+Creatinine           1.0        mg/dL      0.7-1.3
+Potassium            4.5        mmol/L     3.5-5.1
+LDL cholesterol      112        mg/dL      <100
+
+Comment: HbA1c improved from 8.4% (2026-02). Renal function and potassium
+within reference range.
+
+Authorised by: Dr. P. Shah, Consultant Chemical Pathologist, 2026-04-13

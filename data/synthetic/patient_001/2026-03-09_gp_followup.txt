@@ -1,0 +1,48 @@
+*** SYNTHETIC RECORD - FICTIONAL PATIENT - FOR DEVELOPMENT ONLY ***
+
+GREENFIELD SYNTHETIC FAMILY PRACTICE
+
+CLINICAL NOTE - POST-DISCHARGE REVIEW
+Date of visit:  2026-03-09
+Clinician:      Dr. S. Rao (GP)
+Patient:        Rohan Mehta
+MRN:            SYN-000123
+DOB:            1968-07-14
+
+REASON FOR VISIT
+Review 1 week after discharge from Riverside Synthetic Medical Centre
+(admitted 2026-02-24 to 2026-03-02 with community-acquired pneumonia and AKI).
+
+SUBJECTIVE
+Completed the levofloxacin course on 2026-03-05. Cough much improved, now
+dry and occasional. No fever since discharge. Eating and drinking normally.
+Taking all medications as prescribed. Reports home blood pressure readings
+mostly around 145-150/90.
+
+ALLERGIES: NKDA
+
+OBJECTIVE
+BP 148/92, HR 78, Temp 36.8 C, SpO2 97% on room air.
+Chest: few crackles right base, otherwise clear.
+
+RESULTS (blood taken today, 2026-03-09)
+Creatinine        1.1 mg/dL     (0.7-1.3)
+Potassium         4.6 mmol/L    (3.5-5.1)
+
+ASSESSMENT
+1. Community-acquired pneumonia - resolving
+2. Acute kidney injury - resolved, creatinine back to baseline
+3. Hypertension - above target since lisinopril dose reduction
+4. Type 2 diabetes mellitus - on sitagliptin since discharge
+
+PLAN
+- Lisinopril increased back to 20 mg PO once daily now that kidney function
+  has recovered
+- Continue metformin 1000 mg PO twice daily
+- Continue sitagliptin 100 mg PO once daily
+- Continue atorvastatin 40 mg PO at night
+- Levofloxacin: course completed, stopped
+- Repeat potassium and creatinine in 2 weeks after the lisinopril increase
+- Keep diabetes clinic and 6-week chest X-ray appointments as booked
+
+Dr. S. Rao, 2026-03-09

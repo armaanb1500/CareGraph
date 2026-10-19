@@ -11,6 +11,7 @@ from dataclasses import dataclass
 import httpx
 from google import genai
 from google.genai import errors, types
+from pydantic import BaseModel
 
 from caregraph.config import get_settings
 
@@ -59,11 +60,35 @@ def generate(prompt: str, system: str | None = None, temperature: float = 0.2) -
     Tries GEMINI_MODEL first. If it's overloaded or too slow, tries each of
     GEMINI_FALLBACK_MODELS in order.
     """
+    config = types.GenerateContentConfig(system_instruction=system, temperature=temperature)
+    return _call_with_fallback(prompt, config)
+
+
+def generate_structured[T: BaseModel](
+    prompt: str, schema: type[T], system: str | None = None, temperature: float = 0.0
+) -> tuple[T, LLMResult]:
+    """Like generate(), but the reply must be JSON matching `schema` (a Pydantic model).
+
+    The schema is sent to the model so it knows the exact shape to return. We then
+    validate the reply ourselves: if it doesn't fit, Pydantic raises a ValidationError
+    instead of letting malformed data through.
+    """
+    config = types.GenerateContentConfig(
+        system_instruction=system,
+        temperature=temperature,
+        response_mime_type="application/json",
+        response_schema=schema,
+    )
+    result = _call_with_fallback(prompt, config)
+    return schema.model_validate_json(result.text), result
+
+
+def _call_with_fallback(prompt: str, config: types.GenerateContentConfig) -> LLMResult:
+    """Send one request, retrying and falling back through the configured models."""
     settings = get_settings()
     if settings.llm_provider != "gemini":
         raise NotImplementedError(f"LLM_PROVIDER={settings.llm_provider!r} isn't supported yet")
 
-    config = types.GenerateContentConfig(system_instruction=system, temperature=temperature)
     models = [settings.gemini_model, *settings.gemini_fallback_models]
 
     for model in models:

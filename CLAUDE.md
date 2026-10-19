@@ -20,6 +20,12 @@ the goal is that they understand every piece, not just that it works.
 - Free tier constraint: no paid services unless the owner decides to invest.
 
 ## Running things
+- Tests: `.venv/bin/python -m pytest` (no API calls).
+- Ingest: `.venv/bin/python -m scripts.ingest data/synthetic/patient_001`; view with
+  `.venv/bin/python -m scripts.show_patient SYN-000123`. The SQLite database is
+  `data/caregraph.db` (git-ignored); deleting it is safe, re-ingesting rebuilds it.
+- Don't ingest `data/synthetic/attacks/`: those files carry patient_001's MRN and would
+  merge into that record. They're for safety tests only.
 - Python: `.venv/bin/python` (Python 3.14). Run scripts as modules from the root,
   e.g. `.venv/bin/python -m scripts.check_setup`.
 - Gemini free tier is often overloaded (503); `llm.generate()` retries and falls back
