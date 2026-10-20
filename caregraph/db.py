@@ -25,7 +25,9 @@ def connect(path: Path | str | None = None) -> sqlite3.Connection:
     """
     if path is None:
         path = get_settings().database_path
-    conn = sqlite3.connect(path)
+    # check_same_thread=False: the API server may open a connection on one thread and use it
+    # on another. That's safe here because each request gets its own connection.
+    conn = sqlite3.connect(path, check_same_thread=False)
     conn.row_factory = sqlite3.Row  # rows behave like dicts: row["name"]
     conn.execute("PRAGMA foreign_keys = ON")  # SQLite doesn't enforce REFERENCES unless asked
     conn.executescript(SCHEMA_PATH.read_text())

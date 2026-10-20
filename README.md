@@ -24,6 +24,12 @@ cp .env.example .env        # then paste your Gemini API key into .env
 .venv/bin/python -m scripts.show_patient SYN-000123
 ```
 
+Or run the API server and open http://127.0.0.1:8000/docs to try every endpoint in your browser:
+
+```bash
+.venv/bin/uvicorn caregraph.api:app --reload
+```
+
 ## Project layout
 
 ```
@@ -35,6 +41,7 @@ caregraph/        the application code (a Python package)
   db.py           saving to the database
   ingest.py       document -> extraction -> patient record
   record.py       reading a patient's record over time
+  api.py          the HTTP API (FastAPI)
 scripts/          tools you run by hand
 tests/            automated tests (.venv/bin/python -m pytest)
 data/synthetic/   fake patient documents for development
@@ -51,7 +58,7 @@ docs/             learning log and design notes
 | 1 | First LLM call on a synthetic discharge summary | done |
 | 2 | Structured extraction (meds, diagnoses, allergies, labs) | done |
 | 3 | Database for patients, documents, facts | done |
-| 4 | FastAPI backend | |
+| 4 | FastAPI backend | done |
 | 5 | OCR for scans and images | |
 | 6 | RAG with citations | |
 | 7 | "What changed between visits?" timelines | |

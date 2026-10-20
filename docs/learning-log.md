@@ -227,3 +227,54 @@ matches on several identifiers (name, date of birth, MRN) because MRNs differ be
    conflict is invisible. Stage 8 will make it visible.
 4. **Names must match exactly**: "Fasting glucose" and "Glucose, fasting" would split into two lab series.
    Conditions already solve this with a standard `condition` name; labs will need the same.
+
+## Stage 4: The backend API
+
+### What a backend is
+A program that runs continuously and answers **HTTP requests**, the same protocol your browser uses.
+Any client (a web page, a phone app, a hospital system) can use CareGraph without running Python.
+```
+client ── GET /patients/SYN-000123 ──> FastAPI (api.py) ──> record.py ──> SQLite
+client <──────── JSON ──────────────── FastAPI
+```
+
+### HTTP basics
+- **Endpoint** = method + path, e.g. `GET /patients/{mrn}`. `{mrn}` is a *path parameter*.
+- **Methods**: `GET` reads and never changes anything; `POST` creates something or triggers work.
+- **Status codes** tell the client what happened without reading the body:
+  `200` OK, `201` created, `400` bad input, `404` not found, `413` too large,
+  `422` understood but rejected, `500` our bug, `502` a service we depend on failed,
+  `503` temporarily unavailable (try later).
+- **JSON** is the data format both sides speak.
+
+### FastAPI ideas used in `caregraph/api.py`
+- **Decorators**: `@app.get("/patients/{mrn}")` registers the function below it as that endpoint.
+- **Response models**: Pydantic classes describing each response. FastAPI checks our output against
+  them and builds the interactive docs at `/docs` from them. Same idea as Stage 2's schemas,
+  now describing what we *send* rather than what the LLM returns.
+- **Dependency injection**: endpoints declare `conn: Connection`; FastAPI calls `get_conn()` to provide
+  a fresh database connection per request and closes it afterwards. Tests swap it with
+  `app.dependency_overrides` to use an in-memory database.
+- **HTTPException**: `raise HTTPException(404, "...")` turns into a proper error response.
+
+### The API is thin on purpose
+`api.py` only translates between HTTP and Python. The logic lives in `ingest.py`, `record.py` and
+`summarize.py`, which the scripts also use. Stage 1's promise came true: the summary endpoint
+reuses `summarize.py` unchanged. The one refactor needed was splitting `ingest_text()` out of
+`ingest_file()`, because an upload arrives as text, not as a file path.
+
+### Safety choices
+- **Local only**: uvicorn listens on `127.0.0.1`, so only this Mac can reach it. There's no login yet
+  (Stage 10), so it must not be exposed to a network.
+- **Upload limits**: 1 MB maximum, UTF-8 text only. Never trust what a client sends.
+- **Don't leak internals**: responses show file names, not full server paths (there's a test for it).
+- **LLM outages become 503**, telling the client to retry later, instead of crashing with a 500.
+
+### Running it
+`--reload` restarts the server whenever a file changes, which is handy while developing.
+Reading the server log is how you debug a `500`: the traceback in the terminal names the exact line.
+
+### Testing an API
+`TestClient(app)` sends requests directly to the app with no server running. Combined with
+dependency overrides (fake database) and monkeypatch (fake LLM), every endpoint is tested in
+milliseconds, for free.

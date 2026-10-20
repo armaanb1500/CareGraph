@@ -15,20 +15,24 @@ from caregraph.extract import extract_document, normalize
 
 @dataclass
 class IngestResult:
-    path: Path
+    source: str
     status: Literal["ingested", "skipped", "rejected"]
     message: str
+    document_id: int | None = None  # set when status is "ingested"
 
 
 def ingest_file(conn: sqlite3.Connection, path: Path) -> IngestResult:
-    text = path.read_text()
+    return ingest_text(conn, path.read_text(), source=str(path))
 
+
+def ingest_text(conn: sqlite3.Connection, text: str, source: str) -> IngestResult:
+    """Ingest a document's text. `source` records where it came from (a path or an upload name)."""
     # A SHA-256 hash is a fingerprint of the text: identical text always gives the same
     # hash. Checking it first makes ingestion safe to re-run ("idempotent"), and saves an
     # LLM call for documents we already have.
     content_hash = hashlib.sha256(text.encode()).hexdigest()
     if db.document_exists(conn, content_hash):
-        return IngestResult(path, "skipped", "already in the database")
+        return IngestResult(source, "skipped", "already in the database")
 
     report = extract_document(text)
     x = report.extraction
@@ -36,9 +40,9 @@ def ingest_file(conn: sqlite3.Connection, path: Path) -> IngestResult:
     # Filing a document under the wrong patient is one of the worst errors a record system
     # can make. The MRN comes from the LLM, so check it really is in the document.
     if not x.patient_mrn:
-        return IngestResult(path, "rejected", "no MRN found, so it can't be matched to a patient")
+        return IngestResult(source, "rejected", "no MRN found, so it can't be matched to a patient")
     if normalize(x.patient_mrn) not in normalize(text):
-        return IngestResult(path, "rejected", f"extracted MRN {x.patient_mrn!r} isn't in the document")
+        return IngestResult(source, "rejected", f"extracted MRN {x.patient_mrn!r} isn't in the document")
 
     notes = []
     existing = db.find_patient(conn, x.patient_mrn)
@@ -53,10 +57,10 @@ def ingest_file(conn: sqlite3.Connection, path: Path) -> IngestResult:
     # so a document is never left half-saved.
     with conn:
         patient_id = db.get_or_create_patient(conn, x.patient_mrn, x.patient_name)
-        db.save_document(conn, patient_id, str(path), content_hash, text, report)
+        document_id = db.save_document(conn, patient_id, source, content_hash, text, report)
 
     facts = len(x.diagnoses) + len(x.medications) + len(x.allergies) + len(x.lab_results)
     message = f"{x.document_type} dated {x.document_date}, {facts} facts, patient {x.patient_mrn}"
     if notes:
         message += " | needs review: " + "; ".join(notes)
-    return IngestResult(path, "ingested", message)
+    return IngestResult(source, "ingested", message, document_id)

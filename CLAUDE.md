@@ -24,6 +24,9 @@ the goal is that they understand every piece, not just that it works.
 - Ingest: `.venv/bin/python -m scripts.ingest data/synthetic/patient_001`; view with
   `.venv/bin/python -m scripts.show_patient SYN-000123`. The SQLite database is
   `data/caregraph.db` (git-ignored); deleting it is safe, re-ingesting rebuilds it.
+- API server: `.venv/bin/uvicorn caregraph.api:app --reload` (docs at http://127.0.0.1:8000/docs).
+  Start it from Bash in the background: the browser preview's launcher can't read files under
+  ~/Documents (macOS privacy). `.claude/launch.json` then attaches the preview to the running server.
 - Don't ingest `data/synthetic/attacks/`: those files carry patient_001's MRN and would
   merge into that record. They're for safety tests only.
 - Python: `.venv/bin/python` (Python 3.14). Run scripts as modules from the root,
